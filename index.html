@@ -791,12 +791,37 @@
             .page-title { font-size: 2.5rem; }
             .timeline-item { width: 40px; height: 40px; font-size: 1rem; }
             .sessions-container { grid-template-columns: 1fr; }
+            /* Ensure each session card takes full width and stacks */
+            .sessions-container .session-card { grid-column: 1 / -1 !important; margin-bottom: 1rem; }
+            /* Override inline span for combined Sessions 2 & 3 card */
+            .sessions-container .session-card[style*="grid-column"] { grid-column: 1 / -1 !important; }
+            /* Stack inner two-column grid inside the combined card */
+            .sessions-container .session-card [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
             .arrow { display: none; }
             .session-top { height: auto; }
             /* Reduce big iframes/images for small screens */
             .participants-page .consent-preview { height: 420px; }
             .find-us-page .building-image { height: 220px; }
             .find-us-page .map-embed { height: 220px; }
+
+            /* Participants page mobile fixes */
+            .participants-main { padding: 7rem 1rem 2rem; }
+            .participants-page .section-title { font-size: 1.4rem; }
+            .participants-page .criteria-list { gap: 0.75rem; }
+            .participants-page .criteria-item { padding: 0.75rem; }
+            .participants-page .check-button { width: 100%; }
+            .participants-page .consent-container { padding: 1rem; }
+            .participants-page .consent-links { gap: 0.75rem; }
+            .participants-page .btn { width: 100%; }
+            .participants-page .schedule-info { grid-template-columns: 1fr; gap: 1rem; }
+            .participants-page .schedule-options { grid-template-columns: 1fr; gap: 0.75rem; }
+            .participants-page .schedule-container { padding: 1.25rem; }
+            .participants-page .schedule-details { word-break: break-word; overflow-wrap: anywhere; }
+            .participants-page .schedule-container ul { padding-left: 0; margin: 0; }
+            .participants-page .schedule-container li { word-break: break-word; }
+            .participants-page .timeline { width: 100%; overflow-x: auto; padding: 0.5rem; gap: 1rem; }
+            .participants-page .timeline-item { min-width: 160px; }
+            .participants-page .timeline-title { font-size: 1.4rem; }
         }
 
         /* How to Find Us page styles */
@@ -1082,7 +1107,7 @@
 <body>
     <!-- Video Background -->
     <div class="video-background" id="videoBg">
-        <video autoplay muted loop>
+        <video autoplay muted loop playsinline preload="auto">
             <source src="video1.mp4" type="video/mp4">
         </video>
     </div>
@@ -1715,6 +1740,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             showPage('home');
+            // Try to immediately start background video
+            const bgVideoEl = document.querySelector('#videoBg video');
+            if (bgVideoEl) {
+                const tryPlay = () => bgVideoEl.play().catch(() => {});
+                bgVideoEl.muted = true;
+                tryPlay();
+                bgVideoEl.addEventListener('canplay', tryPlay, { once: true });
+            }
             
             // Navigation
             document.querySelectorAll('.nav-link').forEach(link => {
@@ -1812,11 +1845,15 @@
             const circleRight = document.getElementById('circleRight');
 
             if (pageId === 'home') {
-                // Hide decorative background on very small screens for performance/clarity
-                const isSmall = window.matchMedia('(max-width: 768px)').matches;
-                videoBackground.style.display = isSmall ? 'none' : 'block';
-                circleLeft.style.display = isSmall ? 'none' : 'block';
-                circleRight.style.display = isSmall ? 'none' : 'block';
+                // Keep video and decorative circles visible on all screen sizes
+                videoBackground.style.display = 'block';
+                circleLeft.style.display = 'block';
+                circleRight.style.display = 'block';
+                const bgVideoEl = videoBackground.querySelector('video');
+                if (bgVideoEl) {
+                    bgVideoEl.muted = true;
+                    bgVideoEl.play().catch(() => {});
+                }
             } else {
                 videoBackground.style.display = 'none';
                 circleLeft.style.display = 'none';
