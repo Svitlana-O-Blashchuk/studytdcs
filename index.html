@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brain Aging Study</title>
+    <link rel="preload" as="video" href="video1.mp4" type="video/mp4">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -81,13 +82,7 @@
             background: rgba(44, 95, 95, 0.2);
         }
 
-        .search-icon {
-            color: rgba(255, 255, 255, 0.7);
-            padding: 0.5rem 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            cursor: pointer;
-        }
+        
 
         /* Mobile menu toggle (hidden on desktop) */
         .mobile-menu-toggle {
@@ -108,7 +103,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 1;
+            z-index: 1; /* background layer */
         }
 
         .video-background video {
@@ -129,7 +124,7 @@
             border-top: 4px solid rgba(255, 255, 255, 0.8);
             border-radius: 50%;
             transform: translate(-50%, -50%);
-            z-index: 5;
+            z-index: 2; /* above video */
             animation: spinAndSlideLeft 8s ease-out forwards;
         }
 
@@ -143,7 +138,7 @@
             border-bottom: 4px solid rgba(255, 255, 255, 0.7);
             border-radius: 50%;
             transform: translate(50%, -50%);
-            z-index: 5;
+            z-index: 2; /* above video */
             animation: spinAndSlideRight 8s ease-out 0.5s forwards;
         }
 
@@ -819,8 +814,19 @@
             .participants-page .schedule-details { word-break: break-word; overflow-wrap: anywhere; }
             .participants-page .schedule-container ul { padding-left: 0; margin: 0; }
             .participants-page .schedule-container li { word-break: break-word; }
-            .participants-page .timeline { width: 100%; overflow-x: auto; padding: 0.5rem; gap: 1rem; }
-            .participants-page .timeline-item { min-width: 160px; }
+            .participants-page .timeline {
+                width: 100% !important;
+                overflow: visible !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                justify-content: flex-start !important;
+                padding: 0 !important;
+                gap: 0.75rem !important;
+            }
+            .participants-page .timeline-item {
+                min-width: auto !important;
+                width: 100% !important;
+            }
             .participants-page .timeline-title { font-size: 1.4rem; }
         }
 
@@ -1107,7 +1113,7 @@
 <body>
     <!-- Video Background -->
     <div class="video-background" id="videoBg">
-        <video autoplay muted loop playsinline preload="auto">
+        <video autoplay muted loop playsinline webkit-playsinline preload="auto">
             <source src="video1.mp4" type="video/mp4">
         </video>
     </div>
@@ -1222,7 +1228,6 @@
                 <li><a href="#" data-page="contact" class="nav-link">Contact us</a></li>
                 <li><a href="#" data-page="find-us" class="nav-link">How to find us</a></li>
             </ul>
-            <div class="search-icon">Search</div>
         </nav>
     </header>
 
@@ -1747,6 +1752,10 @@
                 bgVideoEl.muted = true;
                 tryPlay();
                 bgVideoEl.addEventListener('canplay', tryPlay, { once: true });
+                window.addEventListener('load', tryPlay);
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) tryPlay();
+                });
             }
             
             // Navigation
